@@ -1,0 +1,82 @@
+#!/usr/bin/python3
+#	halgen - HAL generator for different microcontrollers
+#	Copyright (C) 2012-2019 Johannes Bauer
+#
+#	This file is part of halgen.
+#
+#	halgen is free software; you can redistribute it and/or modify
+#	it under the terms of the GNU General Public License as published by
+#	the Free Software Foundation; this program is ONLY licensed under
+#	version 3 of the License, later versions are explicitly excluded.
+#
+#	halgen is distributed in the hope that it will be useful,
+#	but WITHOUT ANY WARRANTY; without even the implied warranty of
+#	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#	GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License
+#	along with halgen; if not, write to the Free Software
+#	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#	Johannes Bauer <JohannesBauer@gmx.de>
+
+import sys
+import time
+from HALGenerator import HALGenerator
+from XMLParser import XMLParser
+from Traits import Traits
+import getopt
+
+def syntax(msg = None):
+	if msg is not None:
+		print(msg)
+		print
+	print("%s (-o HAL.h) (-a avr) [Input-XML]" % (sys.argv[0]))
+	print
+	print("    -o Filename           Specifies C output file")
+	print("    --outfile=Filename")
+	print("    -a Architecture       Specifies architecture to generate HAL for")
+	print("    --arch=Architecture")
+	print
+	print("Supported architectures:")
+	print("    * avr")
+	print("    * i686")
+	print("    * xmega")
+	sys.exit(1)
+
+options = { }
+
+try:
+	(opts, args) = getopt.getopt(sys.argv[1:], "o:a:", [ "outfile=", "arch=" ])
+except getopt.GetoptError as msg:
+	syntax("Error parsing command line: %s" % (msg))
+
+for (switch, value) in opts:
+	if switch in [ "-o", "--outfile" ]:
+		options["output"] = value
+	elif switch in [ "-a", "--archfile" ]:
+		if value not in [ "avr", "i686", "xmega" ]:
+			syntax("Unknown architecture " + value)
+		options["architecture"] = value
+	else:
+		syntax("Implementation error, switch %s not recognized."  % (switch))
+
+if len(args) == 0:
+	syntax("Must specify input XML file.")
+elif len(args) > 1:
+	syntax("Must specify only one input XML file (%d given)." % (len(args)))
+options["halfile"] = args[0]
+
+if options.get("output") is None:
+	syntax("Must specify output file")
+
+doc = XMLParser().parsefile(options["halfile"])
+
+traits = Traits({
+				"avr": Traits.TRAIT_ARCH_AVR,
+				"i686": Traits.TRAIT_ARCH_I686,
+				"xmega": Traits.TRAIT_ARCH_XMEGA,
+				}[options["architecture"]])
+hal = HALGenerator(doc, options)
+hal.generate(options["output"], traits)
+

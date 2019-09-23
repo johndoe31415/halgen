@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<HAL>
+	<templates>
+		<template name="led">
+			<pin type="output" initialvalue="inactive" />
+			<activelow />
+		</template>
+
+		<template name="relais">
+			<pin type="output" initialvalue="inactive" />
+		</template>
+
+		<template name="diginput">
+			<pin type="input" initialpullup="active" />
+		</template>
+		
+		<template name="diginputinv">
+			<pin type="input" initialpullup="active" />
+			<activelow />
+		</template>
+		
+		<template name="digswitchinput">
+			<pin type="input" initialpullup="active" />
+			<activelow />
+		</template>
+		
+		<template name="digoutput">
+			<pin type="output" initialvalue="inactive" />
+		</template>
+		
+		<template name="digoutputinv">
+			<pin type="output" initialvalue="inactive" />
+			<activelow />
+		</template>
+		
+		<template name="digio">
+			<pin type="io" initialstate="input" initialpullup="inactive" />
+		</template>
+	</templates>
+
+
+	<portpin name="PD5" template="digoutput">
+		<description value="CoilOutput" />
+	</portpin>
+	
+</HAL>
